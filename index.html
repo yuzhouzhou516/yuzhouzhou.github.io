@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCL-90症状自评量表</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e3e9f7 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #3498db, #2ecc71, #f1c40f, #e74c3c);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        h2 {
+            color: #3498db;
+            margin: 25px 0 15px;
+            font-size: 1.4em;
+        }
+        .instructions {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .instructions p {
+            margin-bottom: 10px;
+        }
+        .question-container {
+            margin-bottom: 30px;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #2c3e50;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+        .option:hover {
+            border-color: #3498db;
+            background-color: #f0f7ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.1);
+        }
+        .option.selected {
+            border-color: #3498db;
+            background-color: #e1f0fa;
+        }
+        .option input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        .progress-container {
+            margin: 30px 0;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #64748b;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 30px;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+        }
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-prev {
+            background-color: #95a5a6;
+        }
+        .btn-prev:hover {
+            background-color: #7f8c8d;
+        }
+        .result-container {
+            display: none;
+        }
+        .score-card {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .total-score {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .avg-score {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        .factor-explanation {
+            margin-top: 40px;
+        }
+        .factor-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #3498db;
+        }
+        .factor-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .factor-level {
+            font-weight: normal;
+            color: #e74c3c;
+        }
+        .progress-container-small {
+            margin: 10px 0;
+        }
+        .progress-bar-small {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-small {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .level-0 { background-color: #2ecc71; }
+        .level-1 { background-color: #f1c40f; }
+        .level-2 { background-color: #e67e22; }
+        .level-3 { background-color: #e74c3c; }
+        .conclusion {
+            background-color: #f8fafc;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .note {
+            font-size: 0.9em;
+            color: #64748b;
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background-color: #f1f5f9;
+            border-radius: 10px;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .welcome-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .welcome-screen h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .welcome-screen p {
+            margin-bottom: 15px;
+            color: #64748b;
+        }
+        .btn-start {
+            margin-top: 30px;
+            padding: 16px 40px;
+            font-size: 18px;
+        }
+        .question-number {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+        .usage-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .usage-expired {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .timer-display {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="usage-info" class="usage-info" style="display: none;">
+            <!-- 使用信息将动态显示 -->
+        </div>
+        
+        <div id="usage-expired" class="usage-expired" style="display: none;">
+            <h3>使用权限已过期</h3>
+            <p>您的测试权限已过期，如需继续使用，请重新购买。</p>
+        </div>
+
+        <div id="welcome-screen" class="welcome-screen">
+            <h2>SCL-90症状自评量表</h2>
+            <p>欢迎使用SCL-90症状自评量表，本量表包含90道题目，将帮助您了解近期的心理健康状况。</p>
+            <p>请根据最近一星期以内下列问题影响你或使你感到苦恼的程度，选择最符合的选项。</p>
+            <p>测试大约需要10-15分钟，请在一个安静的环境中完成。</p>
+            <button id="start-btn" class="btn btn-start">开始测试</button>
+        </div>
+
+        <div id="test-container" style="display: none;">
+            <h1>SCL-90症状自评量表</h1>
+            <div class="instructions">
+                <p><strong>指导语：</strong>以下表格中列出了有些人可能有的病痛或问题，请仔细阅读每一条，然后根据最近一星期以内（或过去一个月）下列问题影响你或使你感到苦恼的程度，在相应的选项上划"√"。请不要漏掉问题。</p>
+            </div>
+
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="progress-text" class="progress-text">第 1 题 / 共 90 题</div>
+            <div id="timer-display" class="timer-display"></div>
+
+            <form id="scl90-form">
+                <div id="question-container" class="question-container fade-in">
+                    <!-- 题目将动态生成 -->
+                </div>
+            </form>
+
+            <div class="btn-container">
+                <button id="prev-btn" class="btn btn-prev" disabled>上一题</button>
+            </div>
+        </div>
+
+        <div id="result-container" class="result-container">
+            <h1>SCL-90症状自评量表测试结果</h1>
+            <p style="text-align: center; margin-bottom: 20px; color: #7f8c8d;">测试结果仅供参考，不作诊断使用</p>
+            
+            <div class="score-card">
+                <h2>您的SCL-90总分</h2>
+                <div id="total-score" class="total-score">0</div>
+                <div id="avg-score" class="avg-score">单项平均分: 0.00</div>
+            </div>
+
+            <h2>各因子得分及测试情况</h2>
+            <table id="factor-table">
+                <thead>
+                    <tr>
+                        <th>因子名称</th>
+                        <th>总分</th>
+                        <th>平均分</th>
+                        <th>测试情况</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 这里会动态生成因子得分 -->
+                </tbody>
+            </table>
+
+            <div class="factor-explanation">
+                <h2>因子解释说明</h2>
+                <!-- 这里会动态生成因子解释 -->
+            </div>
+
+            <div class="conclusion">
+                <h2>结果解释</h2>
+                <p>请用从容的心态来看待本次测试。无论分数如何，请一定记得，我们始终都在你身边。</p>
+                <p>SCL-90心理健康自评量表涵盖了情绪状态、思维模式、人际关系、生活习惯等多个维度，它就像一面温柔的镜子，能帮你更清晰地看见自己当下的心理状态。需要知道的是，量表得分仅仅是近期心理感受的投射。</p>
+                <p>若某些因子得分较高，或许只是说明你最近在这些方面暂时感受到了压力或困扰，但这绝不等于你存在严重的问题。很多时候，短期的心理波动本就是生活的常态——可能是学习的节奏、工作的挑战，或是人际交往中的小插曲带来的暂时影响。</p>
+                <p>如果你发现自己在多个维度上长期感到不适，不妨多给自己一些关注：试着调整自己的作息规律，找到适合自己的放松方式，或是和信任的人好好倾诉聊聊。倘若情绪已经悄悄影响到了日常生活，且靠自己难以调节，也请不要犹豫，及时寻求专业的心理咨询或帮助，这并不是软弱，而是对自己的负责。</p>
+                <p>要知道，心理健康和身体健康同样重要，而你，本就值得被好好关心与坚定支持。</p>
+            </div>
+
+            <div class="note">
+                <p>测试情况分级标准：</p>
+                <p><strong>有点</strong>：平均分1.0~2.0分，症状轻微或偶尔出现</p>
+                <p><strong>轻微</strong>：平均分2.0~3.0分，症状明显但不影响日常生活</p>
+                <p><strong>中度</strong>：平均分3.0~4.0分，症状明显且对日常生活有一定影响</p>
+                <p><strong>重度</strong>：平均分4.0~5.0分，症状严重且明显影响日常生活</p>
+                <p style="margin-top: 15px;">按中国常模结果，如果您的SCL90总分超过160分，单项均分超过2分就应作进一步检查，标准分为大于200分说明你有很明显的心理问题，可求助于心理咨询，大于250分则比较严重，需要作医学上的详细检查，很可能要做针对性的心理治疗或在医生的指导下服药。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // SCL-90题目数据
+        const questions = [
+            { text: "头痛", factor: "somatization" },
+            { text: "神经过敏，心中不踏实", factor: "anxiety" },
+            { text: "头脑中有不必要的想法或字句盘旋", factor: "obsessive" },
+            { text: "头昏或昏倒", factor: "somatization" },
+            { text: "对异性的兴趣减退", factor: "depression" },
+            { text: "对旁人责备求全", factor: "interpersonal" },
+            { text: "感到别人能控制您的思想", factor: "psychoticism" },
+            { text: "责怪别人制造麻烦", factor: "paranoid" },
+            { text: "忘记性大", factor: "obsessive" },
+            { text: "担心自己的衣饰整齐及仪态的端正", factor: "obsessive" },
+            { text: "容易烦恼和激动", factor: "hostility" },
+            { text: "胸痛", factor: "somatization" },
+            { text: "害怕空旷的场所或街道", factor: "phobic" },
+            { text: "感到自己的精力下降，活动减慢", factor: "depression" },
+            { text: "想结束自己的生命", factor: "depression" },
+            { text: "听到旁人听不到的声音", factor: "psychoticism" },
+            { text: "发抖", factor: "anxiety" },
+            { text: "感到大多数人都不可信任", factor: "paranoid" },
+            { text: "胃口不好", factor: "appetite" },
+            { text: "容易哭泣", factor: "depression" },
+            { text: "同异性相处时感到害羞不自在", factor: "interpersonal" },
+            { text: "感到受骗，中了圈套或有人想抓住您", factor: "depression" },
+            { text: "无缘无故地突然感到害怕", factor: "anxiety" },
+            { text: "自己不能控制地大发脾气", factor: "hostility" },
+            { text: "怕单独出门", factor: "phobic" },
+            { text: "经常责怪自己", factor: "depression" },
+            { text: "腰痛", factor: "somatization" },
+            { text: "感到难以完成任务", factor: "obsessive" },
+            { text: "感到孤独", factor: "depression" },
+            { text: "感到苦闷", factor: "depression" },
+            { text: "过分担忧", factor: "depression" },
+            { text: "对事物不感兴趣", factor: "depression" },
+            { text: "感到害怕", factor: "anxiety" },
+            { text: "您的感情容易受到伤害", factor: "interpersonal" },
+            { text: "旁人能知道您的私下想法", factor: "psychoticism" },
+            { text: "感到别人不理解您、不同情愫您", factor: "interpersonal" },
+            { text: "感到人们对您不友好，不喜欢您", factor: "interpersonal" },
+            { text: "做事必须做得很慢以保证做得正确", factor: "obsessive" },
+            { text: "心跳得很厉害", factor: "anxiety" },
+            { text: "恶心或胃部不舒服", factor: "somatization" },
+            { text: "感到比不上他人", factor: "interpersonal" },
+            { text: "肌肉酸痛", factor: "somatization" },
+            { text: "感到有人在监视您、谈论您", factor: "paranoid" },
+            { text: "难以入睡", factor: "appetite" },
+            { text: "做事必须反复检查", factor: "obsessive" },
+            { text: "难以作出决定", factor: "obsessive" },
+            { text: "怕乘电车、公共汽车、地铁或火车", factor: "phobic" },
+            { text: "呼吸有困难", factor: "somatization" },
+            { text: "一阵阵发冷或发热", factor: "somatization" },
+            { text: "因为感到害怕而避开某些东西、场合或活动", factor: "phobic" },
+            { text: "脑子变空了", factor: "obsessive" },
+            { text: "身体发麻或刺痛", factor: "somatization" },
+            { text: "喉咙有梗塞感", factor: "somatization" },
+            { text: "感到前途没有希望", factor: "depression" },
+            { text: "不能集中注意力", factor: "obsessive" },
+            { text: "感到身体的某一部分软弱无力", factor: "somatization" },
+            { text: "感到紧张或容易紧张", factor: "anxiety" },
+            { text: "感到手或脚发重", factor: "somatization" },
+            { text: "想到死亡的事", factor: "appetite" },
+            { text: "吃得太多", factor: "appetite" },
+            { text: "当别人看着您或谈论您时感到不自在", factor: "interpersonal" },
+            { text: "有一些不属于您自己的想法", factor: "psychoticism" },
+            { text: "有想打人或伤害他人的冲动", factor: "hostility" },
+            { text: "醒得太早", factor: "appetite" },
+            { text: "必须反复洗手、点数日或触摸某些东西", factor: "obsessive" },
+            { text: "睡得不稳不深", factor: "appetite" },
+            { text: "有想摔坏或破坏东西的冲动", factor: "hostility" },
+            { text: "有一些别人没有的想法或念头", factor: "paranoid" },
+            { text: "感到对别人神经过敏", factor: "interpersonal" },
+            { text: "在商店或电影院等人多的地方感到不自在", factor: "phobic" },
+            { text: "感到任何事情都很困难", factor: "depression" },
+            { text: "一阵阵恐惧或惊恐", factor: "anxiety" },
+            { text: "感到在公共场合吃东西很不舒服", factor: "interpersonal" },
+            { text: "经常与人争论", factor: "hostility" },
+            { text: "单独一人时神经很紧张", factor: "phobic" },
+            { text: "别人对您的成绩没有作出恰当的评价", factor: "paranoid" },
+            { text: "即使和别人在一起也感到孤单", factor: "psychoticism" },
+            { text: "感到坐立不安心神不定", factor: "anxiety" },
+            { text: "感到自己没有什么价值", factor: "depression" },
+            { text: "感到熟悉的东西变成陌生或不像是真的", factor: "anxiety" },
+            { text: "大叫或摔东西", factor: "hostility" },
+            { text: "害怕会在公共场合昏倒", factor: "phobic" },
+            { text: "感到别人想占您的便宜", factor: "paranoid" },
+            { text: "为一些有关性的想法而很苦恼", factor: "psychoticism" },
+            { text: "您认为应该因为自己的过错而受到惩罚", factor: "psychoticism" },
+            { text: "感到要很快把事情做完", factor: "anxiety" },
+            { text: "感到自己的身体有严重问题", factor: "psychoticism" },
+            { text: "从未感到和其他人很亲近", factor: "psychoticism" },
+            { text: "感到自己有罪", factor: "appetite" },
+            { text: "感到自己的脑子有毛病", factor: "psychoticism" }
+        ];
+
+        // 因子配置
+        const factors = {
+            somatization: { name: "躯体化", count: 12, items: [0, 3, 11, 26, 39, 41, 47, 48, 51, 52, 55, 57] },
+            obsessive: { name: "强迫症状", count: 10, items: [2, 8, 9, 27, 37, 44, 45, 50, 54, 64] },
+            interpersonal: { name: "人际关系敏感", count: 9, items: [5, 20, 33, 35, 36, 40, 60, 68, 72] },
+            depression: { name: "抑郁症状", count: 13, items: [4, 13, 14, 19, 21, 25, 28, 29, 30, 31, 53, 70, 78] },
+            anxiety: { name: "焦虑症状", count: 10, items: [1, 16, 22, 32, 38, 56, 71, 77, 79, 85] },
+            hostility: { name: "敌对症状", count: 6, items: [10, 23, 62, 66, 73, 80] },
+            phobic: { name: "恐怖症状", count: 7, items: [12, 24, 46, 49, 69, 74, 81] },
+            paranoid: { name: "偏执症状", count: 6, items: [7, 17, 42, 67, 75, 82] },
+            psychoticism: { name: "精神病性", count: 10, items: [6, 15, 34, 61, 76, 83, 84, 86, 87, 89] },
+            appetite: { name: "睡眠饮食", count: 7, items: [18, 43, 58, 59, 63, 65, 88] }
+        };
+
+        // 全局变量
+        let currentQuestionIndex = 0;
+        const answers = new Array(questions.length).fill(null);
+        let usageTimer = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查使用权限
+            checkUsagePermission();
+            
+            // 开始测试按钮
+            document.getElementById('start-btn').addEventListener('click', startTest);
+            
+            // 上一题按钮
+            document.getElementById('prev-btn').addEventListener('click', showPreviousQuestion);
+        });
+
+        // 检查使用权限
+        function checkUsagePermission() {
+            // 生成一个简单的用户标识（实际应用中应该使用更复杂的标识）
+            const userId = getUserId();
+            
+            // 检查是否已使用过
+            const usageData = getUsageData(userId);
+            
+            if (!usageData) {
+                // 首次使用，记录开始时间
+                setUsageData(userId, {
+                    startTime: new Date().getTime(),
+                    usageCount: 0
+                });
+                showUsageInfo(24 * 60 * 60); // 24小时
+            } else {
+                const currentTime = new Date().getTime();
+                const elapsedTime = currentTime - usageData.startTime;
+                const remainingTime = 24 * 60 * 60 * 1000 - elapsedTime;
+                
+                if (remainingTime <= 0) {
+                    // 使用权限已过期
+                    document.getElementById('usage-expired').style.display = 'block';
+                    document.getElementById('welcome-screen').style.display = 'none';
+                } else {
+                    // 显示剩余时间
+                    showUsageInfo(Math.floor(remainingTime / 1000));
+                }
+            }
+        }
+
+        // 生成用户标识
+        function getUserId() {
+            // 在实际应用中，这里应该使用更复杂的用户标识方法
+            // 例如从URL参数获取、用户登录信息等
+            let userId = localStorage.getItem('scl90_user_id');
+            if (!userId) {
+                userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('scl90_user_id', userId);
+            }
+            return userId;
+        }
+
+        // 获取使用数据
+        function getUsageData(userId) {
+            const data = localStorage.getItem('scl90_usage_' + userId);
+            return data ? JSON.parse(data) : null;
+        }
+
+        // 设置使用数据
+        function setUsageData(userId, data) {
+            localStorage.setItem('scl90_usage_' + userId, JSON.stringify(data));
+        }
+
+        // 更新使用计数
+        function updateUsageCount(userId) {
+            const usageData = getUsageData(userId);
+            if (usageData) {
+                usageData.usageCount = (usageData.usageCount || 0) + 1;
+                setUsageData(userId, usageData);
+            }
+        }
+
+        // 显示使用信息
+        function showUsageInfo(remainingSeconds) {
+            const hours = Math.floor(remainingSeconds / 3600);
+            const minutes = Math.floor((remainingSeconds % 3600) / 60);
+            const seconds = remainingSeconds % 60;
+            
+            document.getElementById('usage-info').innerHTML = `
+                <h3>使用权限信息</h3>
+                <p>您有24小时的使用权限，剩余时间: ${hours}小时${minutes}分${seconds}秒</p>
+                <p>请注意：此链接只能使用一次，请妥善保存您的测试结果。</p>
+            `;
+            document.getElementById('usage-info').style.display = 'block';
+            
+            // 更新计时器
+            if (usageTimer) clearInterval(usageTimer);
+            usageTimer = setInterval(() => {
+                remainingSeconds--;
+                if (remainingSeconds <= 0) {
+                    clearInterval(usageTimer);
+                    document.getElementById('usage-info').style.display = 'none';
+                    document.getElementById('usage-expired').style.display = 'block';
+                    document.getElementById('welcome-screen').style.display = 'none';
+                    document.getElementById('test-container').style.display = 'none';
+                    document.getElementById('result-container').style.display = 'none';
+                } else {
+                    const hours = Math.floor(remainingSeconds / 3600);
+                    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                    const seconds = remainingSeconds % 60;
+                    document.getElementById('usage-info').innerHTML = `
+                        <h3>使用权限信息</h3>
+                        <p>您有24小时的使用权限，剩余时间: ${hours}小时${minutes}分${seconds}秒</p>
+                        <p>请注意：此链接只能使用一次，请妥善保存您的测试结果。</p>
+                    `;
+                }
+            }, 1000);
+        }
+
+        // 开始测试
+        function startTest() {
+            // 更新使用计数
+            const userId = getUserId();
+            updateUsageCount(userId);
+            
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('test-container').style.display = 'block';
+            showQuestion(currentQuestionIndex);
+        }
+
+        // 显示题目
+        function showQuestion(index) {
+            const questionContainer = document.getElementById('question-container');
+            const question = questions[index];
+            
+            // 更新进度条
+            const progressPercent = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('progress-text').textContent = `第 ${index + 1} 题 / 共 ${questions.length} 题`;
+            
+            // 生成题目HTML
+            questionContainer.innerHTML = `
+                <div class="question-text">
+                    <span class="question-number">${index + 1}</span>
+                    ${question.text}
+                </div>
+                <div class="options">
+                    ${[0, 1, 2, 3, 4].map(score => `
+                        <div class="option ${answers[index] === score ? 'selected' : ''}" data-score="${score}">
+                            <input type="radio" name="q${index}" value="${score}" id="q${index}_${score}" 
+                                ${answers[index] === score ? 'checked' : ''}>
+                            <label for="q${index}_${score}">${getOptionText(score)}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // 添加选项点击事件
+            const options = questionContainer.querySelectorAll('.option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const score = parseInt(this.getAttribute('data-score'));
+                    answers[index] = score;
+                    
+                    // 更新选中状态
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // 更新单选按钮状态
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // 自动跳转到下一题
+                    setTimeout(() => {
+                        goToNextQuestion();
+                    }, 300);
+                });
+            });
+            
+            // 更新按钮状态
+            document.getElementById('prev-btn').disabled = index === 0;
+            
+            // 添加淡入动画
+            questionContainer.classList.remove('fade-in');
+            void questionContainer.offsetWidth; // 触发重绘
+            questionContainer.classList.add('fade-in');
+        }
+
+        // 获取选项文本
+        function getOptionText(score) {
+            switch(score) {
+                case 0: return "从无";
+                case 1: return "很轻";
+                case 2: return "中等";
+                case 3: return "偏重";
+                case 4: return "严重";
+                default: return "";
+            }
+        }
+
+        // 自动跳转到下一题
+        function goToNextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            } else {
+                // 提交测试
+                calculateScores();
+                document.getElementById('test-container').style.display = 'none';
+                document.getElementById('result-container').style.display = 'block';
+            }
+        }
+
+        // 显示上一题
+        function showPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+            }
+        }
+
+        // 计算分数
+        function calculateScores() {
+            // 计算总分
+            const totalScore = answers.reduce((sum, score) => sum + score, 0);
+            document.getElementById('total-score').textContent = totalScore;
+            document.getElementById('avg-score').textContent = `单项平均分: ${(totalScore / 90).toFixed(2)}`;
+            
+            // 计算各因子分数
+            const factorScores = {};
+            const factorTableBody = document.querySelector('#factor-table tbody');
+            factorTableBody.innerHTML = '';
+            
+            const factorExplanations = document.querySelector('.factor-explanation');
+            factorExplanations.innerHTML = '<h2>因子解释说明</h2>';
+            
+            for (const [key, factor] of Object.entries(factors)) {
+                const factorScore = factor.items.reduce((sum, index) => sum + answers[index], 0);
+                const avgScore = factorScore / factor.count;
+                
+                factorScores[key] = {
+                    total: factorScore,
+                    average: avgScore,
+                    level: getLevel(avgScore)
+                };
+                
+                // 更新因子表格
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${factor.name}</td>
+                    <td>${factorScore}</td>
+                    <td>${avgScore.toFixed(2)}</td>
+                    <td>${factorScores[key].level}</td>
+                `;
+                factorTableBody.appendChild(row);
+                
+                // 添加因子解释
+                const factorItem = document.createElement('div');
+                factorItem.className = 'factor-item';
+                factorItem.innerHTML = `
+                    <div class="factor-title">
+                        <span>${factor.name}</span>
+                        <span class="factor-level">${factorScores[key].level}</span>
+                    </div>
+                    <div class="progress-container-small">
+                        <div class="progress-bar-small">
+                            <div class="progress-small level-${Math.floor(avgScore)}" style="width: ${(avgScore / 4) * 100}%"></div>
+                        </div>
+                    </div>
+                    <p>${getFactorExplanation(key, factorScores[key].level)}</p>
+                `;
+                factorExplanations.appendChild(factorItem);
+            }
+        }
+
+        // 获取等级
+        function getLevel(score) {
+            if (score < 1.0) return "无";
+            if (score < 2.0) return "有点";
+            if (score < 3.0) return "轻微";
+            if (score < 4.0) return "中度";
+            return "重度";
+        }
+
+        // 获取因子解释
+        function getFactorExplanation(factor, level) {
+            const explanations = {
+                somatization: "主要反映身体上的不适症状，如头痛、胸痛、肌肉酸痛等身体表现。高分可能表明存在明显的身体不适或躯体化症状，即心理压力转化为身体症状表现出来。",
+                obsessive: "主要指那些明知没有必要，但又无法摆脱的无意义的思想、冲动和行为。高分可能表明有明显的强迫观念或行为，如反复思考、反复检查等。",
+                interpersonal: "主要指某些个人不自在与自卑感，特别是与其他人相比较时更加突出。高分可能表明在人际交往中存在明显的不适应感、自卑感或对他人评价过度敏感。",
+                depression: "主要反映抑郁情绪，包括对生活的兴趣减退、缺乏动力、感到孤独、苦闷、甚至有自杀念头等。高分可能表明存在明显的抑郁倾向或抑郁状态。",
+                anxiety: "主要反映焦虑情绪，包括神经过敏、紧张、害怕、发抖等。高分可能表明存在明显的焦虑情绪或焦虑状态，表现为过度担忧和紧张不安。",
+                hostility: "主要从思维、情感及行为三方面来反映敌对表现，包括容易烦恼和激动、有想打人或伤害他人的冲动等。高分可能表明存在明显的敌对情绪或攻击性行为倾向。",
+                phobic: "主要反映对某些特定环境或事物的恐惧，如害怕空旷的场所、怕乘公共交通工具等。高分可能表明存在明显的恐惧症状或特定恐惧症。",
+                paranoid: "主要指猜疑和关系妄想等。包括感到大多数人都不可信任、感到有人在监视您、谈论您等。高分可能表明存在明显的偏执观念，对他人持怀疑态度。",
+                psychoticism: "主要反映一些精神病性症状，如听到旁人听不到的声音、感到别人能控制您的思想、有一些别人没有的想法等。高分可能表明存在某些精神病性症状，需要专业评估。",
+                appetite: "主要反映睡眠和饮食方面的问题，如胃口不好、难以入睡、睡得不稳不深、吃得太多等。高分可能表明存在明显的睡眠或饮食障碍，这往往是心理压力的重要表现。"
+            };
+            
+            return explanations[factor] || "暂无解释。";
+        }
+    </script>
+</body>
+</html>
